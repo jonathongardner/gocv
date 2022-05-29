@@ -1,0 +1,41 @@
+name: Docker Build/Publish Image
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_REGISTRY: ghcr.io
+      DOCKER_IMAGE: jonathongardner/gocv
+      TAG: $(echo $GITHUB_REF | sed -e "s#refs/tags/##g")
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      DOCKER_TARGET_PLATFORM: linux/arm/v7
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v1
+    # https://github.com/docker/setup-qemu-action
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+    # https://github.com/docker/setup-buildx-action
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Prepare
+      if: success()
+      id: prepare
+      run: |
+        echo ::set-output name=docker_platform::${DOCKER_TARGET_PLATFORM}
+        echo ::set-output name=docker_image::${DOCKER_REGISTRY}/${DOCKER_IMAGE}
+        echo ::set-output name=version::4.5.5-static-${TAG}
+    - name: Docker Login
+      if: success()
+      run: |
+        echo "${DOCKER_USERNAME}"
+        echo "${DOCKER_IMAGE}"
+        echo "${DOCKER_PASSWORD}" | docker login ${DOCKER_REGISTRY} --username "${DOCKER_USERNAME}" --password-stdin
+    - name: Run Buildx (push image)
+      if: success()
+      run: |
+        docker buildx build --platform ${{ steps.prepare.outputs.docker_platform }} --tag ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }} --file ./Dockerfile.opencv-static --output type=image,push=true .
