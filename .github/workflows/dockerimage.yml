@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_REGISTRY: ghcr.io
-      DOCKER_IMAGE: jonathongardner/gocv
+      DOCKER_IMAGE: ${{ github.repository }}
       TAG: $(echo $GITHUB_REF | sed -e "s#refs/tags/##g")
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
@@ -32,8 +32,6 @@ jobs:
     - name: Docker Login
       if: success()
       run: |
-        echo "${DOCKER_USERNAME}"
-        echo "${DOCKER_IMAGE}"
         echo "${DOCKER_PASSWORD}" | docker login ${DOCKER_REGISTRY} --username "${DOCKER_USERNAME}" --password-stdin
     - name: Run Buildx (push image)
       if: success()

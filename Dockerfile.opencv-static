@@ -23,6 +23,7 @@ RUN curl -Lo opencv.zip https://github.com/opencv/opencv/archive/${OPENCV_VERSIO
                   -D CMAKE_INSTALL_PREFIX=/usr/local \
                   -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib-${OPENCV_VERSION}/modules \
                   -D BUILD_SHARED_LIBS=OFF \
+                  -D WITH_IPP=OFF \
                   -D WITH_QT=OFF \
                   -D WITH_GTK=OFF \
                   -D WITH_JASPER=OFF \
