@@ -8,10 +8,10 @@ COPY dynamic-link-tar.go /go/src/dynamic-link-tar/
 WORKDIR /go/src/dynamic-link-tar
 RUN GO111MODULE=off go build -o /bin/dynamic-link-tar
 
-COPY gocv/ /go/src/gocv.io/x/gocv/
+COPY mjpeg-streamer/ /go/src/mjpeg-streamer/
 
-WORKDIR /go/src/gocv.io/x/gocv
-RUN go build -tags example -o mjpeg-streamer -i ./cmd/mjpeg-streamer/
+WORKDIR /go/src/mjpeg-streamer
+RUN go build
 
 RUN mkdir /build && dynamic-link-tar mjpeg-streamer out.tar && tar -xf out.tar -C /build
 
