@@ -8,11 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_REGISTRY: ghcr.io
-      DOCKER_IMAGE: ${{ github.repository }}
-      TAG: $(echo $GITHUB_REF | sed -e "s#refs/tags/##g")
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-      DOCKER_TARGET_PLATFORM: linux/arm/v7
+      DOCKER_TARGET_PLATFORM: linux/arm/v7,linux/amd64
     steps:
     - name: Checkout the code
       uses: actions/checkout@v1
@@ -26,14 +23,12 @@ jobs:
       if: success()
       id: prepare
       run: |
-        echo ::set-output name=docker_platform::${DOCKER_TARGET_PLATFORM}
-        echo ::set-output name=docker_image::${DOCKER_REGISTRY}/${DOCKER_IMAGE}
-        echo ::set-output name=version::${TAG}
+        echo ::set-output name=docker_image::$DOCKER_REGISTRY/$GITHUB_REPOSITORY:$GITHUB_REF_NAME
     - name: Docker Login
       if: success()
       run: |
-        echo "${DOCKER_PASSWORD}" | docker login ${DOCKER_REGISTRY} --username "${DOCKER_USERNAME}" --password-stdin
+        echo "${DOCKER_PASSWORD}" | docker login $DOCKER_REGISTRY --username "$GITHUB_REPOSITORY_OWNER" --password-stdin
     - name: Run Buildx (push image)
       if: success()
       run: |
-        docker buildx build --platform ${{ steps.prepare.outputs.docker_platform }} --tag ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }} --file ./Dockerfile --output type=image,push=true .
+        docker buildx build --platform ${DOCKER_TARGET_PLATFORM} --tag ${{ steps.prepare.outputs.docker_image }} --output type=image,push=true .
