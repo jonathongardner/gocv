@@ -28,7 +28,7 @@ jobs:
       run: |
         echo ::set-output name=docker_platform::${DOCKER_TARGET_PLATFORM}
         echo ::set-output name=docker_image::${DOCKER_REGISTRY}/${DOCKER_IMAGE}
-        echo ::set-output name=version::4.5.5-static-${TAG}
+        echo ::set-output name=version::${TAG}
     - name: Docker Login
       if: success()
       run: |
