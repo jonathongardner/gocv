@@ -4,7 +4,8 @@ GitHub action for automating build for armv7 gocv
 
 ## Build
 ```sh
-docker build . -t ghcr.io/jonathongardner/gocv:4.5.5-0.0.0
+docker build -t ghcr.io/jonathongardner/gocv:b4.5.5 -f Dockerfile.base .
+docker build -t ghcr.io/jonathongardner/gocv:v4.5.5 .
 ```
 
 ## Run
