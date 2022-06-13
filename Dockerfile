@@ -1,6 +1,6 @@
 # to build this docker image:
 #   docker build . -t ghcr.io/jonathongardner/gocv:v4.5.5
-FROM golang:1.18-buster AS opencv
+FROM golang:1.18-buster AS gobuild
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
             git build-essential cmake pkg-config unzip libgtk2.0-dev \
@@ -55,7 +55,7 @@ RUN go build
 RUN mkdir /build && dynamic-link-tar mjpeg-streamer out.tar && tar -xf out.tar -C /build
 
 FROM scratch
-COPY --from=build /build /
+COPY --from=gobuild /build /
 ENV LD_LIBRARY_PATH=/usr/local/lib/
 
 ENTRYPOINT ["/mjpeg-streamer"]

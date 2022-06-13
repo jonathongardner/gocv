@@ -20,6 +20,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 
 	_ "net/http/pprof"
 
@@ -62,6 +63,39 @@ func main() {
 
 	// start http server
 	http.Handle("/mjpeg", stream)
+	http.HandleFunc("/shutdown", func(w http.ResponseWriter, r *http.Request) {
+		cmd := exec.Command("shutdown -h +1")
+
+		err := cmd.Run()
+
+		if err != nil {
+			log.Fatal(err)
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			w.Header().Set("X-Content-Type-Options", "nosniff")
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, `
+<html>
+	<head>
+	  <title>WeGYB</title>
+	</head>
+	<body>
+	  Failed to shutdwon
+	</body>
+</html>
+			`)
+    } else {
+			fmt.Fprintf(w, `
+<html>
+	<head>
+		<title>WeGYB</title>
+	</head>
+	<body>
+		Shutdown in 1 minute
+	</body>
+</html>
+			`)
+		}
+	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, `
 <html>
