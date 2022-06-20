@@ -42,20 +42,3 @@ RUN curl -Lo opencv.zip https://github.com/opencv/opencv/archive/${OPENCV_VERSIO
             cd / && rm -rf opencv*
 
 ENV GOPATH /go
-
-COPY dynamic-link-tar.go /go/src/dynamic-link-tar/
-WORKDIR /go/src/dynamic-link-tar
-RUN GO111MODULE=off go build -o /bin/dynamic-link-tar
-
-COPY mjpeg-streamer/ /go/src/mjpeg-streamer/
-
-WORKDIR /go/src/mjpeg-streamer
-RUN go build
-
-RUN mkdir /build && dynamic-link-tar mjpeg-streamer out.tar && tar -xf out.tar -C /build
-
-FROM scratch
-COPY --from=gobuild /build /
-ENV LD_LIBRARY_PATH=/usr/local/lib/
-
-ENTRYPOINT ["/mjpeg-streamer"]
